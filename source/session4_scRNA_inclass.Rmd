@@ -1,6 +1,6 @@
 ---
 title: "Naive T cell scRNA-seq import and analysis"
-authors: "Dan Bunis, Rebecca Jaszczak"
+authors: Dan Bunis, Rebecca Jaszczak
 date: "10/10/2022"
 output:
   pdf_document:
@@ -52,7 +52,7 @@ Tcells <- RunUMAP(
   seed.use = 1)
 ```
 
-```{r save processed object}
+```{r save processed obj}
 saveRDS(Tcells, file = "../processed_data/Tcells_analyzed.rds")
 ```
 
@@ -62,6 +62,7 @@ dittoDimPlot(object = Tcells, var = "Tage", size = 1.5, reduction.use = "umap", 
 
 #dittoDimPlot of clustering results
 dittoDimPlot(Tcells, "RNA_snn_res.0.1", size = 1.5, "umap")
+
 ```
 
 https://twitter.com/hadleywickham/status/643381054758363136
@@ -69,18 +70,18 @@ https://twitter.com/hadleywickham/status/643381054758363136
 ```{r plotting variables}
 tage <- unique(Tcells$Tage)
 
-tage[[1]]
+tage[[3]]
 
 cols <- c(1,9,2,10,3,11)
 
-#scales::show_col(dittoColors()[cols]), see colors listed in cols
-scales::show_col(dittoColors()[cols])
+#scales::show_col(dittoColors()[cols])
 
+#install.packages('scales')
+scales::show_col(dittoColors()[cols])
 ```
 
 ```{r updating umap with number of cells, fig.height=3, fig.width=4}
 #write a line of code to calculate the number of cells in the object, and add it as a "cells_label" variable to the plot
-
 cells_label <- length(colnames(Tcells))
 
 main_umap = dittoDimPlot(Tcells,
@@ -90,42 +91,43 @@ main_umap = dittoDimPlot(Tcells,
 main_umap
 ```
 
-```{r write highlight_cluster function}
-#Proof of concept for function below
+```{r write highlight cluster fxn}
+#proof of concept for function below
 #Tcells$Tage == tage[1]
+
+highlight_cols = c("#E69F00", "#AD7700", "#009E73", "#007756", "#56B4E9", "#1C91D4")
 
 #write a Tage highlighter function
 highlight_cluster <- function(selected_tage, selected_color){
-      dittoDimPlot(Tcells, var = "Tage", size = 1, reduction.use = "umap", 
-                   cells.use = Tcells$Tage == selected_tage, colors = selected_color, 
-                   legend.show = FALSE, ylab = NULL, xlab = NULL, main = NULL,
-                   show.axes.numbers = FALSE)
+  dittoDimPlot(Tcells, "Tage", size = 1, reduction.use = "umap",
+               cells.use = Tcells$Tage == selected_tage, color.panel = selected_color,
+               legend.show = FALSE, ylab = NULL, xlab = NULL, main = NULL,
+               show.axes.numbers = FALSE)
 }
 ```
 
 ```{r making cool highlight plots}
 #write a loop to iterate through and make the highlight plots
-
 #write functioning highlight code
 
-#apply highlight code to single Tage category
+#apply highlight code to single Tage cat
 #highlight_cluster(tage[1])
 
-plot_list = c()
+plot_list <- c()
 
 #convert this to a loop
 #create object with all highlight plots
-for (x in 1:6) {
-      single_plot = highlight_cluster(selected_tage = tage[x], 
-                                      selected_color = cols[x])
-      plot_list[[x]] <- single_plot
+for (x in 1:6){
+  
+  single_plot <- highlight_cluster(selected_tage = tage[x],
+                                   selected_color = highlight_cols[x])
+  plot_list[[x]] <- single_plot
 }
 
 plot_list[[7]] <- main_umap
-#plot_list[[3]]
 ```
 
-```{r extract legend}
+```{r extact legend}
 # adding legend seperately for ultimate flexibility!
 legend = dittoSeq:::.grab_legend(
   dittoDimPlot(Tcells, "Tage", reduction.use = 'umap',
